@@ -1,31 +1,52 @@
+from math import prod
 import numpy as np
 
-f = open("2022\Day6\InputData.txt", "r")
+f = open("2022\Day8\InputData.txt", "r")
 def p1(f):
-    # forest = np.array([[]])
-    forest = [[]]
-    i = 0
-    for line in f.read():
-        forest.append()
-        # forest.append(np.array([]))
-        for n in line:
-            forest[i].append(int(n))
-        i+= 1
-    visibletree = 0
-    for i in range(0,len(forest)-1):
-        for k in range(0, len(forest[i])):
-            viewLeft = forest[i][:i]
-            viewRight = forest[i][(i+1):]
-            viewTop = forest[:i][k]
-            viewButtom = forest[i+1:][i]
-            tree = forest[i][k]
-            if tree >= max(viewLeft) | tree >= max(viewRight) | tree >= max(viewTop) | tree >= max(viewButtom):
-                visibletree += 1
-    return visibletree
-def p2(f):
-    line = f.read()
-    for i, k in enumerate(line):
-        if len(set(line[i - 14 : i])) == 14:
-            return i
+    
+    grid = f.read().splitlines()
+    visibleTrees =  0
+    for ri, row in enumerate(grid):
+      for ti, tree in enumerate(grid[ri]):
+        visibleTrees += (
+          all(grid[ri][j] < tree for j in range(0, ti))
+          or all(grid[ri][j] < tree for j in range(ti+1, len(row)))
+          or all(grid[j][ti] < tree for j in range(0,ri))
+          or all(grid[j][ti] < tree for j in range(ri + 1, len(row)))
+        )
+    return visibleTrees
 
-print(p1(f))
+def p2(f):
+    grid = f.read().splitlines()
+    ans = []
+
+    for gi, row in enumerate(grid):
+        for gk, tree in enumerate(row):
+          ans.append([0, 0, 0, 0])
+          k = len(ans)-1
+          # view left
+          for i in range(gk -1, -1, -1):
+            ans[k][0] += 1
+            if grid[gi][i] >= tree: 
+              break
+
+            # view right
+          for i in range(gk + 1, len(row)):
+            ans[k][1] += 1
+            if grid[gi][i] >= tree: 
+              break 
+
+          # view top
+          for i in range(gi -1, -1, -1):
+            ans[k][2] += 1
+            if grid[i][gk] >= tree: 
+              break
+
+          # view buttom
+          for i in range(gi + 1, len(grid)):
+            ans[k][3] += 1
+            if grid[i][gk] >= tree: 
+              break
+          
+    return max(prod(x) for x in ans)
+print(p2(f))
